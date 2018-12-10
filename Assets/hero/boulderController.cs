@@ -11,6 +11,7 @@ public class boulderController : MonoBehaviour {
     Vector2 maPosition;
     private bool moving;
     RaycastHit2D hit;
+    private float originOffset = 1.8f;
 
     private void Awake()
     {
@@ -22,15 +23,16 @@ public class boulderController : MonoBehaviour {
     void Start () {
         maPosition = transform.position;
 
-        InvokeRepeating("CheckInput", 1f, 0.15f);
+        InvokeRepeating("CheckInput", 0f, 0.15f);
 
 
     }
 
     void Update()
     {
+        Vector2 startingPosition = new Vector2(transform.position.x + originOffset, transform.position.y);
 
-        Debug.DrawRay(transform.position, 3*Vector2.right, Color.red, 0.2f);
+        Debug.DrawRay(startingPosition, 3 * Vector2.right, Color.red, 0.2f);
         if (moving)
         {
             transform.position = maPosition;
@@ -44,16 +46,24 @@ public class boulderController : MonoBehaviour {
 
         if (Input.GetKey("right"))
         {
-            maPosition += 3.731f * Vector2.right;
-            Ray2D Rayon = new Ray2D(transform.position, 3*Vector2.right);
 
-            if (Physics2D.Raycast(transform.position, 3 * Vector2.right))
+
+            Vector2 startingPosition = new Vector2(transform.position.x + originOffset, transform.position.y);
+
+            RaycastHit2D hit = Physics2D.Raycast(startingPosition,  Vector2.right, 2f);
+
+
+            if (hit != false && hit.transform.tag == "wallH") /*&& hit.transform.name != "monPerso")*/
             {
-                Debug.DrawRay(transform.position, 3 * Vector2.right);
-                Debug.Log("Objet : " + hit.collider + " distance : " + hit.distance);
-                moving = false;
+                Debug.Log("Objet : " + hit.transform.tag + " distance : " + hit.distance);
             }
-            else { moving = true; }
+            else {
+
+                moving = true;
+                maPosition += 3.731f * Vector2.right;
+            }
+
+           
             
             anim.SetBool("droite", true);
             anim.SetBool("gauche", false);
@@ -87,6 +97,25 @@ public class boulderController : MonoBehaviour {
         }
     }
 
+    //private void OnCollisionEnter2D(Collision2D collision)
+    //{
+
+    //    RaycastHit2D hit = Physics2D.Raycast(transform.position, 5 * Vector2.right);
+    //    Debug.Log("j'entre en collision Objet: " + hit.collider);
+    //    if (hit.transform.tag == "wallH")
+    //    {
+    //        Destroy(this); /*collision.gameObject.GetComponent<BoxCollider2D>());*/
+    //    }
+    //}
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("j'entre en collision OOOOOOOOOOOObjet: " + collision.tag);
+        if (collision.transform.tag == "foin")
+        {
+            Destroy(collision.gameObject); /*collision.gameObject.GetComponent<BoxCollider2D>());*/
+        }
+    }
 
 }
 
